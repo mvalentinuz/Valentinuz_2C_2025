@@ -9,20 +9,31 @@
  *
  * @section hardConn Hardware Connection
  *
- * |    Peripheral  |   ESP32   	|
- * |:--------------:|:--------------|
- * | GPIO_3			| ECHO			|
- * | GPIO_2			| TRIGGER		|
- * | +5V			| +5V			|
- * | GND			| GND			|
+ * |   HC_SR04      |   EDU-CIAA	|
+ * |:--------------:|:-------------:|
+ * | 	Vcc 	    |	5V      	|
+ * | 	Echo		| 	GPIO_3		|
+ * | 	Trig	 	| 	GPIO_2		|
+ * | 	Gnd 	    | 	GND     	|
  *
- *
+ * |   Display      |   EDU-CIAA	|
+ * |:--------------:|:-------------:|
+ * | 	Vcc 	    |	5V      	|
+ * | 	BCD1		| 	GPIO_20		|
+ * | 	BCD2	 	| 	GPIO_21		|
+ * | 	BCD3	 	| 	GPIO_22		|
+ * | 	BCD4	 	| 	GPIO_23		|
+ * | 	SEL1	 	| 	GPIO_19		|
+ * | 	SEL2	 	| 	GPIO_18		|
+ * | 	SEL3	 	| 	GPIO_9		|
+ * | 	Gnd 	    | 	GND     	|
  * @section changelog Changelog
  *
  * |   Date	    | Description                                    |
  * |:----------:|:-----------------------------------------------|
  * | 10/09/2025 | Creación del documento                         |
  * | 17/09/2025 | Finalización del desarrollo                    |
+ * 
  * @author Mauro Valentinuz (maurovalentinuz@gmail.com)
  *
  */
@@ -39,7 +50,9 @@
 #include "hc_sr04.h"
 #include "lcditse0803.h"
 /*==================[macros and definitions]=================================*/
+/// @brief Período de medición en milisegundos.
 #define CONFIG_PERIODO_MEDICION 1000
+/// @brief Período de lectura de teclas en milisegundos.
 #define CONFIG_PERIODO_TECLAS 100
 /*==================[internal data definition]===============================*/
 /// @brief Variable que almacena la distancia medida.
@@ -51,8 +64,11 @@ bool sostener = false;
 /// @brief Variable que almacena la tecla presionada.
 uint8_t tecla;
 /*==================[internal functions declaration]=========================*/
-/// @brief Tarea que mide la distancia usando el sensor HC-SR04.
-/// @param pvParameter Parámetro de la tarea (no se usa).
+/** 
+* @fn medirDistancia
+* @brief Tarea que mide la distancia usando el sensor HC-SR04.
+* @param pvParameter Parámetro de la tarea (no se usa).
+*/
 static void medirDistancia(void *pvParameter)
 {
 	while (true)
@@ -65,8 +81,11 @@ static void medirDistancia(void *pvParameter)
 	}
 }
 
-/// @brief Tarea que prende los LEDs según la distancia medida.
-/// @param pvParameter Parámetro de la tarea (no se usa).
+/** 
+ * @fn prenderLedSegunDistancia
+* @brief Tarea que prende los LEDs según la distancia medida.
+* @param pvParameter Parámetro de la tarea (no se usa).
+*/
 static void prenderLedSegunDistancia(void *pvParameter)
 {
 	while (true)
@@ -108,8 +127,11 @@ static void prenderLedSegunDistancia(void *pvParameter)
 	}
 }
 
-/// @brief Tarea que lee el estado de las teclas y actualiza variables de control.
-/// @param pvParameter Parámetro de la tarea (no se usa).
+/** 
+ * @fn leerTeclas
+* @brief Tarea que lee el estado de las teclas y actualiza variables de control.
+* @param pvParameter Parámetro de la tarea (no se usa).
+*/
 static void leerTeclas(void *pvParameter)
 {
 	while (true)
@@ -128,8 +150,11 @@ static void leerTeclas(void *pvParameter)
 	}
 }
 
-/// @brief Tarea que muestra la distancia en el display LCD.
-/// @param pvParameter Parámetro de la tarea (no se usa).
+/** 
+ * @fn mostrarDistanciaEnLcd
+ * @brief Tarea que muestra la distancia en el display LCD.
+* @param pvParameter Parámetro de la tarea (no se usa).
+*/
 static void mostrarDistanciaEnLcd(void *pvParameter)
 {
 	while (true)
