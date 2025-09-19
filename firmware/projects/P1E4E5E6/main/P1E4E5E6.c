@@ -1,23 +1,29 @@
-/*! @mainpage Template
+/*! @mainpage P1E4E5E6
  *
  * @section genDesc General Description
  *
- * This section describes how the program works.
- *
- * <a href="https://drive.google.com/...">Operation Example</a>
+ * Este programa convierte un número a BCD y muestra cada dígito en un periférico LCD utilizando pines GPIO.
  *
  * @section hardConn Hardware Connection
  *
- * |    Peripheral  |   ESP32   	|
- * |:--------------:|:--------------|
- * | 	PIN_X	 	| 	GPIO_X		|
- *
+ * |   Display      |   EDU-CIAA	|
+ * |:--------------:|:-------------:|
+ * | 	Vcc 	    |	5V      	|
+ * | 	BCD1		| 	GPIO_20		|
+ * | 	BCD2	 	| 	GPIO_21		|
+ * | 	BCD3	 	| 	GPIO_22		|
+ * | 	BCD4	 	| 	GPIO_23		|
+ * | 	SEL1	 	| 	GPIO_19		|
+ * | 	SEL2	 	| 	GPIO_18		|
+ * | 	SEL3	 	| 	GPIO_9		|
+ * | 	Gnd 	    | 	GND     	|
  *
  * @section changelog Changelog
  *
  * |   Date	    | Description                                    |
  * |:----------:|:-----------------------------------------------|
  * | 12/09/2023 | Document creation		                         |
+ * | 10/09/2025 | Finalización del desarrollo                    |
  *
  * @author Mauro Valentinuz (maurovalentinuz@gmail.com)
  *
@@ -35,13 +41,30 @@
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data definition]===============================*/
+/**
+ * @struct gpioConf_t
+ * @brief Estructura para la configuración de un GPIO.
+ */
 typedef struct
 {
 	gpio_t pin; /*!< GPIO pin number */
 	io_t dir;	/*!< GPIO direction '0' IN;  '1' OUT*/
 } gpioConf_t;
-
+/**
+ * @brief Vector que mapea los bits BCD a los GPIOs para mostrar el dígito.
+ */
+gpio_t mapaGPIO[4] = {GPIO_20, GPIO_21, GPIO_22, GPIO_23};
+/**
+ * @brief Vector que mapea los selectores de dígito a los GPIOs.
+ */
+gpio_t mapaGPIO2[3] = {GPIO_19, GPIO_18, GPIO_9};
 /*==================[internal functions declaration]=========================*/
+/**
+ * @brief Convierte un número en un arreglo de dígitos BCD.
+ * @param data Número a convertir.
+ * @param digits Cantidad de dígitos a extraer.
+ * @param bcd_number Puntero al arreglo donde se guardan los dígitos BCD.
+ */
 void convertToBcdArray(uint32_t data, uint8_t digits, uint8_t *bcd_number)
 {
 	for (int i = digits - 1; i >= 0; i--)
@@ -51,9 +74,11 @@ void convertToBcdArray(uint32_t data, uint8_t digits, uint8_t *bcd_number)
 	}
 }
 
-gpio_t mapaGPIO[4] = {GPIO_20, GPIO_21, GPIO_22, GPIO_23};
-gpio_t mapaGPIO2[3] = {GPIO_19, GPIO_18, GPIO_9};
-
+/**
+ * @brief Setea el estado de los GPIOs según el dígito BCD.
+ * @param digito Dígito BCD.
+ * @param gpio Arreglo de estructuras gpioConf_t para el dígito.
+ */
 void setGPIO(uint8_t digito, gpioConf_t *gpio)
 {
 	for (int i = 0; i < 4; i++)
@@ -69,6 +94,13 @@ void setGPIO(uint8_t digito, gpioConf_t *gpio)
 	}
 }
 
+/**
+ * @brief Muestra cada dígito de un número en el periférico usando los GPIOs.
+ * @param numero Número a mostrar.
+ * @param digitos Cantidad de dígitos.
+ * @param gpio Arreglo de gpioConf_t para mostrar el dígito.
+ * @param gpio_map Arreglo de gpioConf_t para seleccionar el dígito.
+ */
 void graficarDigitos(uint32_t numero, uint8_t digitos, gpioConf_t *gpio, gpioConf_t *gpio_map)
 {
 	uint8_t arreglo[digitos];
@@ -82,17 +114,11 @@ void graficarDigitos(uint32_t numero, uint8_t digitos, gpioConf_t *gpio, gpioCon
 }
 
 /*==================[external functions definition]==========================*/
+/**
+ * @brief Función principal de la aplicación. Inicializa los GPIOs y ejecuta la función de graficar dígitos.
+ */
 void app_main(void)
 {
-	/*
-	uint8_t arreglo[3];
-	convertToBcdArray(137, 3, arreglo);
-
-	for (int i = 0; i < 3; i++)
-	{
-		printf("%d", arreglo[i]);
-	}
-	*/
 	gpioConf_t gpio[] = {{mapaGPIO[0], GPIO_OUTPUT}, {mapaGPIO[1], GPIO_OUTPUT}, {mapaGPIO[2], GPIO_OUTPUT}, {mapaGPIO[3], GPIO_OUTPUT}};
 
 	gpioConf_t gpio_map[] = {{mapaGPIO2[0], GPIO_OUTPUT}, {mapaGPIO2[1], GPIO_OUTPUT}, {mapaGPIO2[2], GPIO_OUTPUT}};
