@@ -2,9 +2,8 @@
  *
  * @section genDesc General Description
  *
- * This section describes how the program works.
- *
- * <a href="https://drive.google.com/...">Operation Example</a>
+ * El programa genera una señal analógica que simula la forma de onda de un ECG y envía por UART el valor leído de un potenciómetro.
+ * Además, utiliza timers para controlar la frecuencia de muestreo y salida de la señal, y emplea tareas de FreeRTOS para gestionar la lectura y escritura de datos.
  *
  * @section hardConn Hardware Connection
  *
@@ -20,6 +19,7 @@
  * |   Date	    | Description                                    |
  * |:----------:|:-----------------------------------------------|
  * | 12/09/2023 | Document creation		                         |
+ * | 15/10/2025 | Finalización de desarrollo                     |
  *
  * @author Mauro Valentinuz (maurovalentinuz@gmail.com)
  *
@@ -38,10 +38,19 @@
 
 /// @brief Período de muestreo en microsegundos.
 #define CONFIG_PERIODO_MUESTREO 2 * 1000
+
+/// @brief Buffer del arreglo ECG.
 #define BUFFER_SIZE 231
+
 /*==================[internal data definition]===============================*/
+
+/// @brief Taskhandle para la funcion inputRead.
 TaskHandle_t inputReadTaskHandle = NULL;
+
+/// @brief Taskhandle para la funcion outputWrite.
 TaskHandle_t outputWriteTaskHandle = NULL;
+
+/// @brief Arreglo con datos de un ECG.
 const char ecg[BUFFER_SIZE] = {
     76, 77, 78, 77, 79, 86, 81, 76, 84, 93, 85, 80,
     89, 95, 89, 85, 93, 98, 94, 88, 98, 105, 96, 91,
@@ -62,16 +71,30 @@ const char ecg[BUFFER_SIZE] = {
     74, 67, 71, 78, 72, 67, 73, 81, 77, 71, 75, 84, 79, 77, 77, 76, 76,
 };
 /*==================[internal functions declaration]=========================*/
+
+/** 
+* @fn timerInput()
+* @brief Función que notifica a la tarea de lectura analógica.
+*/
 static void timerInput()
 {
 	vTaskNotifyGiveFromISR(inputReadTaskHandle, pdFALSE);
 }
 
+/** 
+* @fn timerOutput()
+* @brief Función que notifica a la tarea de escritura analógica.
+*/
 static void timerOutput()
 {
 	vTaskNotifyGiveFromISR(outputWriteTaskHandle, pdFALSE);
 }
 
+/** 
+* @fn inputRead(void *param)
+* @brief Función que lee el valor analógico del canal CH1 y lo envía por UART.
+* @param param Parámetro de la función (no se usa).
+*/
 static void inputRead(void *param)
 {
 	uint16_t valor;
@@ -86,6 +109,11 @@ static void inputRead(void *param)
 	}
 }
 
+/** 
+* @fn outputWrite(void *param)
+* @brief Función que escribe el valor del arreglo ECG en formato analógico.
+* @param param Parámetro de la función (no se usa).
+*/
 static void outputWrite(void *param)
 {
 	uint16_t valor;
@@ -100,6 +128,7 @@ static void outputWrite(void *param)
 	}
 }
 /*==================[external functions definition]==========================*/
+/// @brief Función principal del programa.
 void app_main(void)
 {
 	timer_config_t timer1 = {
