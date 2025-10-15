@@ -53,8 +53,8 @@
 #include "uart_mcu.h"
 /*==================[macros and definitions]=================================*/
 
-/// @brief Período de medición en milisegundos.
-#define CONFIG_PERIODO_MEDICION 1000000
+/// @brief Período de medición en microsegundos.
+#define CONFIG_PERIODO_MEDICION 1000*1000
 
 /*==================[internal data definition]===============================*/
 
